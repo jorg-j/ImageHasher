@@ -1,0 +1,11 @@
+version: '2'
+
+services:
+  domainrequests:
+    container_name: imagehasher
+    image: imghash
+
+    volumes:
+      - ~/Documents/docker/imghash/data:/code/data
+      - ~/Documents/docker/imghash/new:/code/new
+      - ~/Documents/docker/imghash/source:/code/source

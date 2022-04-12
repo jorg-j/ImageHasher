@@ -9,7 +9,7 @@ import configparser
 from multiprocessing import Pool, Semaphore, cpu_count
 
 from dbman import Db
-from utils.hashtools import runhash, is_image, cropres
+from hashtools import runhash, is_image, cropres
 
 
 # It takes an image, hashes it, and adds it to the database
