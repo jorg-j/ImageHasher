@@ -38,12 +38,12 @@ performing a one-to-many search.
 
 To easily search the database for duplicate hashes
 
-`
+```
 SELECT filename, ahash FROM hashes
 WHERE ahash in (
 SELECT ahash FROM hashes GROUP BY ahash HAVING COUNT(id)>1)
 ORDER BY ahash;
-`
+```
 
 This query will generate a table of filenames
 
