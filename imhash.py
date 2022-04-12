@@ -15,7 +15,7 @@ from hashtools import runhash, is_image, cropres
 # It takes an image, hashes it, and adds it to the database
 class ImageData:
     def __init__(self, img):
-        db_location, _ = fetch_config(version='SA')
+        db_location, _ = fetch_config(version="SA")
         self.db = Db(db_location)
         self.mode = "init"
         self.exists = self.db.check_exist(img)
@@ -35,7 +35,7 @@ class ImageData:
         self.crop = cropres(self.img)
         if str(self.ahash) != "":
             self.hashed = True
-    
+
     def add_to_db(self):
         """
         It takes the image, and then it hashes it using the following methods: ahash, phash, dhash, haar,
@@ -50,7 +50,7 @@ class ImageData:
             haar=self.haar,
             db4=self.db4,
             color=self.color,
-            crop=self.crop
+            crop=self.crop,
         )
 
 
@@ -58,7 +58,7 @@ def process_image(img):
     """
     It takes an image, checks if it exists in the database, hashes it if it doesn't, and adds it to the
     database if it's been hashed
-    
+
     :param img: The image to be processed
     """
     image = ImageData(img=img)
@@ -72,7 +72,7 @@ def worker(img):
     """
     It takes an image, checks if it exists in the database, hashes it if it doesn't, and adds it to the
     database if it's been hashed
-    
+
     :param img: The image to be processed
     """
 
@@ -82,7 +82,8 @@ def worker(img):
         if image.hashed:
             image.add_to_db()
 
-def fetch_config(version, file='config.ini'):
+
+def fetch_config(version, file="config.ini"):
     config = configparser.ConfigParser()
     config.read(file)
     config_version = version
@@ -96,29 +97,23 @@ if __name__ == "__main__":
     import os
     import sys
 
-
-
     global db
-  
-    
-    db_location, source = fetch_config(version='SA')
+
+    db_location, source = fetch_config(version="SA")
 
     # connect to database
     db = Db(db_location)
 
     paths = os.listdir(source)
     start = datetime.datetime.now()
-    
+
     fullfiles = []
 
     for p in paths:
         image_name = os.path.join(source, p)
         fullfiles.append(image_name)
         # try:
-
-            
         #     process_image(img=image_name)
-            
         # except Exception as e:
         #     print(e)
     poolsize = Semaphore(cpu_count())

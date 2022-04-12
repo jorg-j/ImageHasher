@@ -1,8 +1,6 @@
 import sqlite3
 import imagehash
 
-# connection = sqlite3.connect('hashstore.db')
-
 
 class Db:
     def __init__(self, dblocation) -> None:
@@ -34,11 +32,11 @@ class Db:
         """
 
         self.commit_to_db(query)
-        
+
     def listify(self, results):
         """
         This function takes a list of tuples and returns a list of the first element of each tuple
-        
+
         :param results: the results of the SQL query
         :return: A list of the first item in the tuple.
         """
@@ -50,7 +48,6 @@ class Db:
 
             pass
         return packet
-
 
     def check_exist(self, filename):
         cursor = self.connection.cursor()
@@ -65,13 +62,13 @@ class Db:
             return True
         else:
             return False
-    
+
     def check_crop_resist(self, hash, mode):
         # return False, ""
         cursor = self.connection.cursor()
-        chunks = str(hash).split(',')
+        chunks = str(hash).split(",")
         for chunk in chunks:
-            if chunk != '0000000000000000':
+            if chunk != "0000000000000000":
 
                 query = f"""
                 SELECT cropresistant, filename
@@ -86,11 +83,7 @@ class Db:
         return False, ""
         # hash_match, filename
 
-
-
-
     def check_hash(self, hash, mode):
-        ## TODO crop resist needs iterator split by ,
         cursor = self.connection.cursor()
         query = f"""
         SELECT filename
@@ -103,7 +96,6 @@ class Db:
             return True, cleanedValue
         else:
             return False, cleanedValue
-
 
     def add_hash(self, filename, ahash, phash, dhash, haar, db4, color, crop):
         query = f"""
@@ -130,7 +122,6 @@ class Db:
         );
         """
         self.commit_to_db(query)
-
 
 
 # def commitToDB(func):
@@ -166,7 +157,7 @@ class Db:
 # def listify(results):
 #     """
 #     This function takes a list of tuples and returns a list of the first element of each tuple
-    
+
 #     :param results: the results of the SQL query
 #     :return: A list of the first item in the tuple.
 #     """
@@ -211,7 +202,7 @@ class Db:
 # def add_hash(filename, ahash, phash, dhash, haar, db4, color, crop):
 #     query = f"""
 #     INSERT INTO hashes
-#     (    
+#     (
 #     filename,
 #     ahash,
 #     phash,

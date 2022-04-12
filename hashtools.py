@@ -10,7 +10,7 @@ def runhash(img, hashfunc, flip=False):
 
     Take filename of image and the hash function and return the result.
     
-    >>> runhash(img='/Users/jackjorgensen/Pictures/Albury/Tower.jpeg', hashfunc=imagehash.phash)
+    >>> runhash(img='~/Pictures/Albury/Tower.jpeg', hashfunc=imagehash.phash)
     array([[ True,  True, False, False,  True,  True,  True, False],
            [False, False, False, False,  True, False, False,  True],
            [False, False,  True,  True, False,  True, False, False],
