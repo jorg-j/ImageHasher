@@ -50,3 +50,13 @@ This query will generate a table of filenames
 | baa      | aaa   |
 | foo1     | abb   |
 | baa3     | abb   |
+
+
+## Usage
+
+- Populate the directory of choice with images
+- Set the directory in the config under source
+- Ensure the config heading is set in the imhash.py file
+- Set the pool size. (There is a semaphore print out to assist in tuning the pool size)
+- Run imhash.py
+
