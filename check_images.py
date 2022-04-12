@@ -39,7 +39,7 @@ def check_hash_match(img, flip):
 
     for mode, hash in hashes.items():
         if mode == "cropresistant":
-            hash_match, filename = db.check_crop_resist(hash=hash, mode=mode)
+            hash_match, filename = db.check_crop_resist(hash=hash)
         else:
             hash_match, filename = db.check_hash(hash=hash, mode=mode)
 
@@ -49,6 +49,12 @@ def check_hash_match(img, flip):
 
 
 def display_side(img, results):
+    """
+    It takes a list of images, and displays them side by side
+    
+    :param img: the image to be displayed
+    :param results: list of images to be displayed
+    """
     results.append(img)
     images = [Image.open(x) for x in results]
     widths, heights = zip(*(i.size for i in images))
@@ -67,6 +73,13 @@ def display_side(img, results):
 
 
 def display_image(img, results):
+    """
+    It takes an image and a list of images as input, and displays the input image with the text
+    "Submitted" on it, and then displays each image in the list with the name of the image on it
+    
+    :param img: The image you want to compare against
+    :param results: list of images that are similar to the image submitted
+    """
     original = Image.open(img)
     I1 = ImageDraw.Draw(original)
     myFont = ImageFont.truetype(font=r"C:\Windows\Fonts\arial.ttf", size=65)
@@ -80,6 +93,14 @@ def display_image(img, results):
 
 
 def find_similar_images(userpath):
+    """
+    For each image in the user's directory, check if it exists in the database. If it doesn't, check if
+    it has a hash match with any other image in the database. If it does, display the image and its hash
+    match. If it doesn't, check if it has a hash match with any image in the database that has been
+    flipped. If it does, display the image and its hash match.
+    
+    :param userpath: The path to the folder you want to check for duplicates
+    """
 
     image_filenames = glob(userpath + "*")
 

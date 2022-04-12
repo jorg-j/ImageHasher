@@ -1,4 +1,5 @@
 import sqlite3
+
 import imagehash
 
 
@@ -50,6 +51,12 @@ class Db:
         return packet
 
     def check_exist(self, filename):
+        """
+        It checks if a filename exists in the database
+
+        :param filename: The name of the file to be checked
+        :return: A list of tuples.
+        """
         cursor = self.connection.cursor()
         query = f"""
         SELECT filename
@@ -63,8 +70,14 @@ class Db:
         else:
             return False
 
-    def check_crop_resist(self, hash, mode):
-        # return False, ""
+    def check_crop_resist(self, hash):
+        """
+        It takes a hash, splits it into chunks, and then checks if any of those chunks are in the database.
+        If they are, it returns True and the filename
+
+        :param hash: the hash of the image
+        :return: a tuple.
+        """
         cursor = self.connection.cursor()
         chunks = str(hash).split(",")
         for chunk in chunks:
@@ -81,9 +94,16 @@ class Db:
                     print(data[0][1])
                     return True, [data[0][1]]
         return False, ""
-        # hash_match, filename
 
     def check_hash(self, hash, mode):
+        """
+        It takes a hash and a mode (ahash, phash, etc) and checks if the hash is in the database. If it
+        is, it returns True and the filename. If it isn't, it returns False and an empty list.
+
+        :param hash: the hash to check
+        :param mode: ahash, phash, dhash, haar, db4, color, crop
+        :return: A tuple of two values.
+        """
         cursor = self.connection.cursor()
         query = f"""
         SELECT filename
@@ -98,6 +118,18 @@ class Db:
             return False, cleanedValue
 
     def add_hash(self, filename, ahash, phash, dhash, haar, db4, color, crop):
+        """
+        It takes a filename, and the hashes of that file, and inserts them into the database
+
+        :param filename: the name of the file
+        :param ahash: Average hash
+        :param phash: Perceptual hash
+        :param dhash: Difference hash
+        :param haar: Haar wavelet hash
+        :param db4: wavelet hash
+        :param color: a 64-bit integer that represents the color of the image
+        :param crop: a boolean value that indicates whether the image is crop resistant or not
+        """
         query = f"""
         INSERT INTO hashes
         (    

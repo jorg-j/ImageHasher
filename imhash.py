@@ -84,6 +84,14 @@ def worker(img):
 
 
 def fetch_config(version, file="config.ini"):
+    """
+    It reads the config.ini file and returns the values of the db and source keys in the section that
+    matches the version parameter
+    
+    :param version: The version of the config file to use
+    :param file: the name of the config file, defaults to config.ini (optional)
+    :return: the values of the variables db_location and source.
+    """
     config = configparser.ConfigParser()
     config.read(file)
     config_version = version
