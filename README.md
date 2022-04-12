@@ -90,3 +90,14 @@ To run:
 To inspect:
 
 `docker run -it --entrypoint /bin/bash imghash`
+
+
+## TODO
+
+- [ ] Add Logging
+- [ ] Reset config from SA to Default
+- [ ] Reset .py files from SA to Default
+- [ ] Add check_images.py -> Write image to disk instead of preview
+- [ ] Add check_images.py entry point for docker
+- [ ] Add check_images.py new image write hash to db
+- [ ] Add check_images.py new image post write to db move from new/lookup to source
