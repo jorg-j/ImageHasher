@@ -1,7 +1,9 @@
 
 # Image Hasher
 
-An image hashing written in Python. Supports:
+An image hashing written in Python. 
+
+Supports:
 
 * Average hashing
 * Perceptual hashing
@@ -42,6 +44,7 @@ WHERE ahash in (
 SELECT ahash FROM hashes GROUP BY ahash HAVING COUNT(id)>1)
 ORDER BY ahash;
 `
+
 This query will generate a table of filenames
 
 | filename | ahash |
@@ -60,3 +63,30 @@ This query will generate a table of filenames
 - Set the pool size. (There is a semaphore print out to assist in tuning the pool size)
 - Run imhash.py
 
+## Docker
+
+When configuring for docker do not adjust the config.ini or imhash.py config settings.
+
+During build the `SA` config in imhash.py will automatically be converted to `Docker`.
+With the config.ini data mapping to the paths inside the docker image.
+
+The host directory volumes can be set in the docker-compose.yaml
+
+`
+    volumes:
+      - ~/Documents/docker/imghash/data:/code/data
+      - ~/Documents/docker/imghash/new:/code/new
+      - ~/Documents/docker/imghash/source:/code/source
+`
+
+To build:
+
+`docker build -t imghash .`
+
+To run:
+
+`docker-compose up`
+
+To inspect:
+
+`docker run -it --entrypoint /bin/bash imghash`
