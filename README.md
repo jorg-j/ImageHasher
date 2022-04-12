@@ -94,6 +94,7 @@ To inspect:
 
 ## TODO
 
+- [ ] Add automatic duplicate datatable dump to csv function
 - [ ] Add Logging
 - [ ] Reset config from SA to Default
 - [ ] Reset .py files from SA to Default
