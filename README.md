@@ -1,129 +1,238 @@
-#!/usr/bin/env python
-from __future__ import absolute_import, division, print_function
-
+import sqlite3
 import imagehash
-import six
-from PIL import Image
-import datetime
-import configparser
-from multiprocessing import Pool, Semaphore, cpu_count
 
-from dbman import Db
-from utils.hashtools import runhash, is_image, cropres
+# connection = sqlite3.connect('hashstore.db')
 
 
-# It takes an image, hashes it, and adds it to the database
-class ImageData:
-    def __init__(self, img):
-        db_location, _ = fetch_config(version='SA')
-        self.db = Db(db_location)
-        self.mode = "init"
-        self.exists = self.db.check_exist(img)
-        self.img = img
-        self.hashed = False
+class Db:
+    def __init__(self, dblocation) -> None:
+        self.connection = sqlite3.connect(dblocation)
+        self.Create()
 
-    def hash_img(self):
+    def commit_to_db(self, query):
+
+        cursor = self.connection.cursor()
+        cursor.execute(query)
+        self.connection.commit()
+
+    def Create(self):
         """
-        It takes an image, runs it through a series of image hashing functions, and returns the results
+        Creates Databases
         """
-        self.ahash = runhash(self.img, imagehash.average_hash)
-        self.phash = runhash(self.img, imagehash.phash)
-        self.dhash = runhash(self.img, imagehash.dhash)
-        self.haar = runhash(self.img, imagehash.whash)
-        self.db4 = runhash(self.img, lambda img: imagehash.whash(img, mode="db4"))
-        self.color = runhash(self.img, imagehash.colorhash)
-        self.crop = cropres(self.img)
-        if str(self.ahash) != "":
-            self.hashed = True
-    
-    def add_to_db(self):
-        """
-        It takes the image, and then it hashes it using the following methods: ahash, phash, dhash, haar,
-        db4, color, and crop
+        query = """
+        CREATE TABLE IF NOT EXISTS hashes
+        (id INTEGER PRIMARY KEY AUTOINCREMENT,
+        filename TEXT NOT NULL UNIQUE,
+        ahash TEXT,
+        phash TEXT,
+        dhash TEXT,
+        whashhaar TEXT,
+        whashdb4 TEXT,
+        colorhash TEXT,
+        cropresistant BLOB
+        );
         """
 
-        self.db.add_hash(
-            filename=self.img,
-            ahash=self.ahash,
-            phash=self.phash,
-            dhash=self.dhash,
-            haar=self.haar,
-            db4=self.db4,
-            color=self.color,
-            crop=self.crop
-        )
+        self.commit_to_db(query)
+        
+    def listify(self, results):
+        """
+        This function takes a list of tuples and returns a list of the first element of each tuple
+        
+        :param results: the results of the SQL query
+        :return: A list of the first item in the tuple.
+        """
+        packet = []
+        try:
+            for field in results:
+                packet.append(field[0])
+        except:
+
+            pass
+        return packet
 
 
-def process_image(img):
-    """
-    It takes an image, checks if it exists in the database, hashes it if it doesn't, and adds it to the
-    database if it's been hashed
+    def check_exist(self, filename):
+        cursor = self.connection.cursor()
+        query = f"""
+        SELECT filename
+        FROM hashes
+            WHERE filename = '{filename}';
+        """
+        data = cursor.execute(query).fetchall()
+        cleanedValue = self.listify(data)
+        if len(cleanedValue) == 1:
+            return True
+        else:
+            return False
     
-    :param img: The image to be processed
-    """
-    image = ImageData(img=img)
-    if image.exists == False:
-        image.hash_img()
-        if image.hashed:
-            image.add_to_db()
+    def check_crop_resist(self, hash, mode):
+        # return False, ""
+        cursor = self.connection.cursor()
+        chunks = str(hash).split(',')
+        for chunk in chunks:
+            if chunk != '0000000000000000':
+
+                query = f"""
+                SELECT cropresistant, filename
+                FROM hashes
+                WHERE cropresistant LIKE '%{chunk}%';
+                """
+                data = cursor.execute(query).fetchall()
+
+                if len(data) > 0:
+                    print(data[0][1])
+                    return True, [data[0][1]]
+        return False, ""
+        # hash_match, filename
 
 
-def worker(img):
-    """
-    It takes an image, checks if it exists in the database, hashes it if it doesn't, and adds it to the
-    database if it's been hashed
+
+
+    def check_hash(self, hash, mode):
+        ## TODO crop resist needs iterator split by ,
+        cursor = self.connection.cursor()
+        query = f"""
+        SELECT filename
+        FROM hashes
+        WHERE {mode} = '{hash}';
+        """
+        data = cursor.execute(query).fetchall()
+        cleanedValue = self.listify(data)
+        if len(cleanedValue) == 1:
+            return True, cleanedValue
+        else:
+            return False, cleanedValue
+
+
+    def add_hash(self, filename, ahash, phash, dhash, haar, db4, color, crop):
+        query = f"""
+        INSERT INTO hashes
+        (    
+        filename,
+        ahash,
+        phash,
+        dhash,
+        whashhaar,
+        whashdb4,
+        colorhash,
+        cropresistant)
+        VALUES
+        (
+            '{filename}',
+            '{ahash}',
+            '{phash}',
+            '{dhash}',
+            '{haar}',
+            '{db4}',
+            '{color}',
+            '{crop}'
+        );
+        """
+        self.commit_to_db(query)
+
+
+
+# def commitToDB(func):
+#     def wrapper(*args, **kwargs):
+#         cursor = connection.cursor()
+#         query = func(*args, **kwargs)
+#         cursor.execute(query)
+#         connection.commit()
+#     return wrapper
+
+
+# # Create and Add New
+# @commitToDB
+# def Create():
+#     """
+#     Creates Databases
+#     """
+#     query = """
+#     CREATE TABLE IF NOT EXISTS hashes
+#     (id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     filename TEXT NOT NULL UNIQUE,
+#     ahash TEXT,
+#     phash TEXT,
+#     dhash TEXT,
+#     whashhaar TEXT,
+#     whashdb4 TEXT,
+#     colorhash TEXT,
+#     cropresistant TEXT
+#     );
+#     """
+#     return query
+
+# def listify(results):
+#     """
+#     This function takes a list of tuples and returns a list of the first element of each tuple
     
-    :param img: The image to be processed
-    """
+#     :param results: the results of the SQL query
+#     :return: A list of the first item in the tuple.
+#     """
+#     packet = []
+#     try:
+#         for field in results:
+#             packet.append(field[0])
+#     except:
 
-    image = ImageData(img=img)
-    if image.exists == False:
-        image.hash_img()
-        if image.hashed:
-            image.add_to_db()
+#         pass
+#     return packet
 
-def fetch_config(version, file='config.ini'):
-    config = configparser.ConfigParser()
-    config.read(file)
-    config_version = version
+# def check_exist(filename):
+#     cursor = connection.cursor()
+#     query = f"""
+#     SELECT filename
+#     FROM hashes
+#         WHERE filename = '{filename}';
+#     """
+#     data = cursor.execute(query).fetchall()
+#     cleanedValue = listify(data)
+#     if len(cleanedValue) == 1:
+#         return True
+#     else:
+#         return False
 
-    db_location = config[config_version]["db"]
-    source = config[config_version]["source"]
-    return db_location, source
+# def check_hash(hash, mode):
+#     cursor = connection.cursor()
+#     query = f"""
+#     SELECT filename
+#     FROM hashes
+#     WHERE {mode} = '{hash}';
+#     """
+#     data = cursor.execute(query).fetchall()
+#     cleanedValue = listify(data)
+#     if len(cleanedValue) == 1:
+#         return True, cleanedValue
+#     else:
+#         return False, cleanedValue
+
+# @commitToDB
+# def add_hash(filename, ahash, phash, dhash, haar, db4, color, crop):
+#     query = f"""
+#     INSERT INTO hashes
+#     (    
+#     filename,
+#     ahash,
+#     phash,
+#     dhash,
+#     whashhaar,
+#     whashdb4,
+#     colorhash,
+#     cropresistant)
+#     VALUES
+#     (
+#         '{filename}',
+#         '{ahash}',
+#         '{phash}',
+#         '{dhash}',
+#         '{haar}',
+#         '{db4}',
+#         '{color}',
+#         '{crop}'
+#     );
+#     """
+#     return query
 
 
-if __name__ == "__main__":
-    import os
-    import sys
-
-
-
-    global db
-  
-    
-    db_location, source = fetch_config(version='SA')
-
-    # connect to database
-    db = Db(db_location)
-
-    paths = os.listdir(source)
-    start = datetime.datetime.now()
-    
-    fullfiles = []
-
-    for p in paths:
-        image_name = os.path.join(source, p)
-        fullfiles.append(image_name)
-        # try:
-
-            
-        #     process_image(img=image_name)
-            
-        # except Exception as e:
-        #     print(e)
-    poolsize = Semaphore(cpu_count())
-    print(poolsize)
-    p = Pool(2)
-    p.map(worker, fullfiles)
-
-    print(datetime.datetime.now() - start)
+# Create()
