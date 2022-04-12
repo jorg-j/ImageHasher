@@ -72,16 +72,12 @@ With the config.ini data mapping to the paths inside the docker image.
 
 The host directory volumes can be set in the docker-compose.yaml
 
-`
-
+```
     volumes:
-
       - ~/Documents/docker/imghash/data:/code/data
-
       - ~/Documents/docker/imghash/new:/code/new
-
       - ~/Documents/docker/imghash/source:/code/source
-`
+```
 
 To build:
 
