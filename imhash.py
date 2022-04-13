@@ -126,7 +126,7 @@ if __name__ == "__main__":
         #     print(e)
     poolsize = Semaphore(cpu_count())
     print(poolsize)
-    p = Pool(2)
+    p = Pool(cpu_count() - 1)
     p.map(worker, fullfiles)
     
     db.writedupes()
