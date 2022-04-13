@@ -51,6 +51,10 @@ class Db:
         return packet
 
     def writedupes(self):
+        """
+        It takes a list of hashes, and for each hash, it queries the database for all rows where the hash is
+        duplicated, and writes the results to a CSV file
+        """
         cursor = self.connection.cursor()
         hashes = ["ahash", "phash", "dhash", "dhash", "whashhaar", "whashdb4"]
 
@@ -179,6 +183,12 @@ class Db:
         self.commit_to_db(query)
 
     def get_file_by_hash(self, hash):
+        """
+        It takes a hash, and returns the filename associated with that hash.
+
+        :param hash: The hash of the file you want to get the filename of
+        :return: A list of the file names that match the hash.
+        """
         cursor = self.connection.cursor()
         query = f"""SELECT filename FROM hashes where cropresistant = '{hash}';"""
         data = cursor.execute(query).fetchall()
@@ -186,6 +196,11 @@ class Db:
         return cleanedValue[0]
 
     def cropresist_csv(self):
+        """
+        It takes a hash from the database, splits it into chunks, and then searches the database for any
+        other hashes that contain the same chunk. If it finds a match, it writes the filename, the matched
+        file, the hash, the matching chunk, and the full hash to a CSV file
+        """
         import csv
 
         storage = []
@@ -211,8 +226,7 @@ class Db:
 
         if len(storage) > 0:
             header = ["filename", "matchedFile", "hash", "match_chunk", "fullhash"]
-            with open(f"cropresist.csv", "w", newline='') as f:
+            with open(f"cropresist.csv", "w", newline="") as f:
                 writer = csv.writer(f)
                 writer.writerow(header)
                 writer.writerows(storage)
-
