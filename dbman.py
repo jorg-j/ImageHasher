@@ -5,10 +5,20 @@ import imagehash
 
 class Db:
     def __init__(self, dblocation) -> None:
+        """
+        The function creates a connection to the database and creates the table if it doesn't exist
+        
+        :param dblocation: The location of the database file
+        """
         self.connection = sqlite3.connect(dblocation)
         self.Create()
 
     def commit_to_db(self, query):
+        """
+        It takes a query as an argument, executes it, and commits the changes to the database
+        
+        :param query: The query to be executed
+        """
 
         cursor = self.connection.cursor()
         cursor.execute(query)
@@ -76,6 +86,7 @@ class Db:
                     writer.writerow(header)
                     for i in data:
                         writer.writerow(i)
+            print(f"{hash}: Possible matches - {len(data)}")
 
     def check_exist(self, filename):
         """
@@ -197,13 +208,14 @@ class Db:
 
     def cropresist_csv(self):
         """
-        It takes a hash from the database, splits it into chunks, and then searches the database for any
-        other hashes that contain the same chunk. If it finds a match, it writes the filename, the matched
-        file, the hash, the matching chunk, and the full hash to a CSV file
+        It takes a hash, finds all the files that contain that hash, and then finds all the files that
+        contain the same hash as the original file.
         """
+
         import csv
 
-        storage = []
+        storage = [] # store before csv write
+        filecheck = [] # Prevents the same file showing multiple times due to multiple hash match
         cursor = self.connection.cursor()
         query = """SELECT cropresistant FROM hashes;"""
         data = cursor.execute(query).fetchall()
@@ -211,7 +223,7 @@ class Db:
         for row in cleanedValue:
             hashes = row.split(",")
             for chunk in hashes:
-                if chunk != "0000000000000000":
+                if chunk != "0000000000000000": # block 0 chunk
                     query = f"""
                     SELECT filename, cropresistant
                     FROM hashes
@@ -222,11 +234,17 @@ class Db:
                     if len(data) > 0:
                         source_file = self.get_file_by_hash(row)
                         temp = (data[0][0], source_file, data[0][1], chunk, row)
-                        storage.append(temp)
+                        filepack = (data[0][0], source_file)
+                        if filepack not in filecheck:
+                            filecheck.append(filepack)
+                            filecheck.append((source_file, data[0][0]))
+                            storage.append(temp)
 
+        # Given there are items found, write csv
         if len(storage) > 0:
             header = ["filename", "matchedFile", "hash", "match_chunk", "fullhash"]
             with open(f"cropresist.csv", "w", newline="") as f:
                 writer = csv.writer(f)
                 writer.writerow(header)
                 writer.writerows(storage)
+        print(f"cropresistant: Possible matches - {len(storage)}")
