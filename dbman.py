@@ -50,6 +50,29 @@ class Db:
             pass
         return packet
 
+    def writedupes(self):
+        cursor = self.connection.cursor()
+        hashes = ["ahash", "phash", "dhash", "dhash", "whashhaar", "whashdb4"]
+
+        for hash in hashes:
+            query = f"""
+            SELECT filename, {hash} FROM hashes
+            WHERE {hash} in(
+                SELECT {hash} FROM hashes GROUP BY {hash} HAVING COUNT(id)>1
+            )
+            ORDER BY {hash};
+            """
+            data = cursor.execute(query).fetchall()
+            if len(data) > 0:
+                import csv
+
+                header = ["filename", hash]
+                with open(f"{hash}.csv", "w", encoding="UTF-8") as f:
+                    writer = csv.writer(f)
+                    writer.writerow(header)
+                    for i in data:
+                        writer.writerow(i)
+
     def check_exist(self, filename):
         """
         It checks if a filename exists in the database
@@ -154,3 +177,42 @@ class Db:
         );
         """
         self.commit_to_db(query)
+
+    def get_file_by_hash(self, hash):
+        cursor = self.connection.cursor()
+        query = f"""SELECT filename FROM hashes where cropresistant = '{hash}';"""
+        data = cursor.execute(query).fetchall()
+        cleanedValue = self.listify(data)
+        return cleanedValue[0]
+
+    def cropresist_csv(self):
+        import csv
+
+        storage = []
+        cursor = self.connection.cursor()
+        query = """SELECT cropresistant FROM hashes;"""
+        data = cursor.execute(query).fetchall()
+        cleanedValue = self.listify(data)
+        for row in cleanedValue:
+            hashes = row.split(",")
+            for chunk in hashes:
+                if chunk != "0000000000000000":
+                    query = f"""
+                    SELECT filename, cropresistant
+                    FROM hashes
+                    WHERE cropresistant LIKE '%{chunk}%'
+                    AND cropresistant != '{row}';
+                    """
+                    data = cursor.execute(query).fetchall()
+                    if len(data) > 0:
+                        source_file = self.get_file_by_hash(row)
+                        temp = (data[0][0], source_file, data[0][1], chunk, row)
+                        storage.append(temp)
+
+        if len(storage) > 0:
+            header = ["filename", "matchedFile", "hash", "match_chunk", "fullhash"]
+            with open(f"cropresist.csv", "w", newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(header)
+                writer.writerows(storage)
+
