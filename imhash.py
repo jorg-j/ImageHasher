@@ -128,5 +128,7 @@ if __name__ == "__main__":
     print(poolsize)
     p = Pool(2)
     p.map(worker, fullfiles)
-
+    
+    db.writedupes()
+    db.cropresist_csv()
     print(datetime.datetime.now() - start)
