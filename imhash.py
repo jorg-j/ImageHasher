@@ -15,7 +15,7 @@ from hashtools import runhash, is_image, cropres
 # It takes an image, hashes it, and adds it to the database
 class ImageData:
     def __init__(self, img):
-        db_location, _ = fetch_config(version="SA")
+        db_location, _ = fetch_config(version="Default")
         self.db = Db(db_location)
         self.mode = "init"
         self.exists = self.db.check_exist(img)
@@ -107,7 +107,7 @@ if __name__ == "__main__":
 
     global db
 
-    db_location, source = fetch_config(version="SA")
+    db_location, source = fetch_config(version="Default")
 
     # connect to database
     db = Db(db_location)

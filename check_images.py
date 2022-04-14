@@ -132,7 +132,7 @@ if __name__ == "__main__":
 
     config = configparser.ConfigParser()
     config.read("config.ini")
-    config_version = "SA"
+    config_version = "Default"
 
     db_location = config[config_version]["db"]
     source = config[config_version]["lookup"]
