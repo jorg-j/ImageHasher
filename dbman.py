@@ -1,5 +1,5 @@
 import sqlite3
-
+import os
 import imagehash
 
 
@@ -65,6 +65,10 @@ class Db:
         It takes a list of hashes, and for each hash, it queries the database for all rows where the hash is
         duplicated, and writes the results to a CSV file
         """
+        try:
+            os.mkdir("data")
+        except:
+            pass
         cursor = self.connection.cursor()
         hashes = ["ahash", "phash", "dhash", "dhash", "whashhaar", "whashdb4"]
 
@@ -81,7 +85,7 @@ class Db:
                 import csv
 
                 header = ["filename", hash]
-                with open(f"{hash}.csv", "w", encoding="UTF-8") as f:
+                with open(f"data/{hash}.csv", "w", encoding="UTF-8") as f:
                     writer = csv.writer(f)
                     writer.writerow(header)
                     for i in data:
@@ -243,7 +247,7 @@ class Db:
         # Given there are items found, write csv
         if len(storage) > 0:
             header = ["filename", "matchedFile", "hash", "match_chunk", "fullhash"]
-            with open(f"cropresist.csv", "w", newline="") as f:
+            with open(f"data/cropresist.csv", "w", newline="") as f:
                 writer = csv.writer(f)
                 writer.writerow(header)
                 writer.writerows(storage)

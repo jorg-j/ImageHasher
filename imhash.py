@@ -119,7 +119,8 @@ if __name__ == "__main__":
 
     for p in paths:
         image_name = os.path.join(source, p)
-        fullfiles.append(image_name)
+        if is_image(image_name):
+            fullfiles.append(image_name)
         # try:
         #     process_image(img=image_name)
         # except Exception as e:

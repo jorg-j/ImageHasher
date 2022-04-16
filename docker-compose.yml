@@ -7,5 +7,4 @@ services:
 
     volumes:
       - ~/Documents/docker/imghash/data:/code/data
-      - ~/Documents/docker/imghash/new:/code/new
       - ~/Documents/docker/imghash/source:/code/source
