@@ -5,6 +5,6 @@ WORKDIR /code
 COPY requirements.txt /code/
 RUN pip install -r /code/requirements.txt
 COPY *.py /code/
-RUN sed -i "s/Default/Docker/g" /code/imhash.py
 COPY config.ini /code/config.ini
+RUN sed -i "s/Default/temp/g" /code/config.ini; sed -i "s/Docker/Default/g" /code/config.ini
 CMD [ "python", "/code/imhash.py" ]
