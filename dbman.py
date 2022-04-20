@@ -233,7 +233,7 @@ class Db:
         for row in cleanedValue:
             hashes = row.split(",")
             for chunk in hashes:
-                if chunk != "0000000000000000": # block 0 chunk
+                if self.allow_hash(hash=chunk) == True:
                     query = f"""
                     SELECT filename, cropresistant
                     FROM hashes
