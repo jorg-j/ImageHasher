@@ -112,7 +112,7 @@ class Db:
         else:
             return False
         
-    def allow_hash(hash):
+    def allow_hash(self, hash):
         if hash.count(hash[0]) == len(hash):
             return False
         else:
@@ -129,7 +129,7 @@ class Db:
         cursor = self.connection.cursor()
         chunks = str(hash).split(",")
         for chunk in chunks:
-            if allow_hash(hash=chunk) == True:
+            if self.allow_hash(hash=chunk) == True:
             
                 query = f"""
                 SELECT cropresistant, filename
