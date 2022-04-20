@@ -70,7 +70,7 @@ class Db:
         except:
             pass
         cursor = self.connection.cursor()
-        hashes = ["ahash", "phash", "dhash", "dhash", "whashhaar", "whashdb4"]
+        hashes = ["ahash", "phash", "dhash", "whashhaar", "whashdb4"]
 
         for hash in hashes:
             query = f"""
@@ -111,6 +111,12 @@ class Db:
             return True
         else:
             return False
+        
+    def allow_hash(hash):
+        if hash.count(hash[0]) == len(hash):
+            return False
+        else:
+            return True
 
     def check_crop_resist(self, hash):
         """
@@ -123,8 +129,8 @@ class Db:
         cursor = self.connection.cursor()
         chunks = str(hash).split(",")
         for chunk in chunks:
-            if chunk != "0000000000000000":
-
+            if allow_hash(hash=chunk) == True:
+            
                 query = f"""
                 SELECT cropresistant, filename
                 FROM hashes
