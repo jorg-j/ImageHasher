@@ -121,10 +121,7 @@ if __name__ == "__main__":
         image_name = os.path.join(source, p)
         if is_image(image_name):
             fullfiles.append(image_name)
-        # try:
-        #     process_image(img=image_name)
-        # except Exception as e:
-        #     print(e)
+
     poolsize = Semaphore(cpu_count())
     print(poolsize)
     p = Pool(cpu_count() - 1)
