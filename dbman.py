@@ -1,7 +1,7 @@
 import sqlite3
 import os
 import imagehash
-
+from collections import Counter
 
 class Db:
     def __init__(self, dblocation) -> None:
@@ -113,7 +113,9 @@ class Db:
             return False
         
     def allow_hash(self, hash):
-        if hash.count(hash[0]) == len(hash):
+        # If the hash complexity is to low then dont bother with it
+        # Prevents single colours from dominating
+        if len(Counter(hash).keys()) < 5:
             return False
         else:
             return True
@@ -243,7 +245,8 @@ class Db:
                     data = cursor.execute(query).fetchall()
                     if len(data) > 0:
                         source_file = self.get_file_by_hash(row)
-                        temp = (data[0][0], source_file, data[0][1], chunk, row)
+                        # temp = (filename, matchedFile, hash, match_chunk, fullhash, AutoGrade)
+                        temp = (data[0][0], source_file, data[0][1], chunk, row, str(len(Counter(chunk).keys())))
                         filepack = (data[0][0], source_file)
                         if filepack not in filecheck:
                             filecheck.append(filepack)
@@ -252,7 +255,7 @@ class Db:
 
         # Given there are items found, write csv
         if len(storage) > 0:
-            header = ["filename", "matchedFile", "hash", "match_chunk", "fullhash"]
+            header = ["filename", "matchedFile", "hash", "match_chunk", "fullhash", "AutoGrade]
             with open(f"data/cropresist.csv", "w", newline="") as f:
                 writer = csv.writer(f)
                 writer.writerow(header)
