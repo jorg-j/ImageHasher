@@ -3,11 +3,12 @@ import os
 import imagehash
 from collections import Counter
 
+
 class Db:
     def __init__(self, dblocation) -> None:
         """
         The function creates a connection to the database and creates the table if it doesn't exist
-        
+
         :param dblocation: The location of the database file
         """
         self.connection = sqlite3.connect(dblocation)
@@ -16,7 +17,7 @@ class Db:
     def commit_to_db(self, query):
         """
         It takes a query as an argument, executes it, and commits the changes to the database
-        
+
         :param query: The query to be executed
         """
 
@@ -111,7 +112,7 @@ class Db:
             return True
         else:
             return False
-        
+
     def allow_hash(self, hash):
         # If the hash complexity is to low then dont bother with it
         # Prevents single colours from dominating
@@ -132,7 +133,7 @@ class Db:
         chunks = str(hash).split(",")
         for chunk in chunks:
             if self.allow_hash(hash=chunk) == True:
-            
+
                 query = f"""
                 SELECT cropresistant, filename
                 FROM hashes
@@ -226,13 +227,20 @@ class Db:
 
         import csv
 
-        storage = [] # store before csv write
-        filecheck = [] # Prevents the same file showing multiple times due to multiple hash match
+        storage = []  # store before csv write
+        filecheck = (
+            []
+        )  # Prevents the same file showing multiple times due to multiple hash match
         cursor = self.connection.cursor()
         query = """SELECT cropresistant FROM hashes;"""
         data = cursor.execute(query).fetchall()
         cleanedValue = self.listify(data)
+
+        counter = 0
+
         for row in cleanedValue:
+            print(f"Processing {counter} of {len(cleanedValue)}")
+            counter += 1
             hashes = row.split(",")
             for chunk in hashes:
                 if self.allow_hash(hash=chunk) == True:
@@ -246,7 +254,14 @@ class Db:
                     if len(data) > 0:
                         source_file = self.get_file_by_hash(row)
                         # temp = (filename, matchedFile, hash, match_chunk, fullhash, AutoGrade)
-                        temp = (data[0][0], source_file, data[0][1], chunk, row, str(len(Counter(chunk).keys())))
+                        temp = (
+                            data[0][0],
+                            source_file,
+                            data[0][1],
+                            chunk,
+                            row,
+                            str(len(Counter(chunk).keys())),
+                        )
                         filepack = (data[0][0], source_file)
                         if filepack not in filecheck:
                             filecheck.append(filepack)
@@ -255,7 +270,14 @@ class Db:
 
         # Given there are items found, write csv
         if len(storage) > 0:
-            header = ["filename", "matchedFile", "hash", "match_chunk", "fullhash", "AutoGrade]
+            header = [
+                "filename",
+                "matchedFile",
+                "hash",
+                "match_chunk",
+                "fullhash",
+                "AutoGrade",
+            ]
             with open(f"data/cropresist.csv", "w", newline="") as f:
                 writer = csv.writer(f)
                 writer.writerow(header)

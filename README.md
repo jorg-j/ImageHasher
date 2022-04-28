@@ -1,7 +1,9 @@
 
 # Image Hasher
 
-An image hashing written in Python. 
+An image hashing framework which allows for folder injest, db storage of hash results.
+
+This allows for rapid checking of thousands of images thanks to stored hash compares in SQL instead of one to one comparisons. All done automatically at the end ov the evaluation.
 
 Supports:
 
@@ -98,8 +100,8 @@ To inspect:
 - [ ] Add Logging
 - [X] Reset config from SA to Default
 - [X] Reset .py files from SA to Default
-- [ ] Add check_images.py -> Write image to disk instead of preview
+- [X] Add check_images.py -> Write image to disk instead of preview
 - [ ] Add check_images.py entry point for docker
 - [ ] Add check_images.py new image write hash to db
 - [ ] Add check_images.py new image post write to db move from new/lookup to source
-- [ ] Add Data Directory for CSV gen
+- [X] Add Data Directory for CSV gen
