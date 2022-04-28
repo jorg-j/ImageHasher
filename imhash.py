@@ -12,6 +12,7 @@ from dbman import Db
 from hashtools import runhash, is_image, cropres
 
 
+
 # It takes an image, hashes it, and adds it to the database
 class ImageData:
     def __init__(self, img):
@@ -78,8 +79,10 @@ def worker(img):
 
     image = ImageData(img=img)
     if image.exists == False:
+        logging.info(f"Hashing: {img}")
         image.hash_img()
         if image.hashed:
+            logging.info(f"Adding to DB: {img}")
             image.add_to_db()
 
 
@@ -103,16 +106,30 @@ def fetch_config(version, file="config.ini"):
 
 if __name__ == "__main__":
     import os
+    import logging
     import sys
 
     global db
 
+    try:
+        os.mkdir("data")
+    except:
+        pass
+
+    logfile = 'data/logs.log'
+    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', filename=logfile, filemode='a', level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
+
     db_location, source = fetch_config(version="Default")
+    logging.info(f'Database: {db_location}')
 
     # connect to database
     db = Db(db_location)
 
     paths = os.listdir(source)
+    logging.info(f"Sourcing images from: {source}")
+
     start = datetime.datetime.now()
 
     fullfiles = []
@@ -121,11 +138,14 @@ if __name__ == "__main__":
         image_name = os.path.join(source, p)
         if is_image(image_name):
             fullfiles.append(image_name)
+    
+    logging.info(f"Files to be evaluated: {len(fullfiles)}")
 
     poolsize = Semaphore(cpu_count())
-    print(poolsize)
+    logging.info(f"Cores: {cpu_count() - 1}")
     p = Pool(cpu_count() - 1)
     p.map(worker, fullfiles)
+    logging.info("Complete")
     
     db.writedupes()
     db.cropresist_csv()
