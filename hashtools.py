@@ -48,9 +48,9 @@ def cropres(img, flip=False):
     try:
         if flip:
             im = Image.open(img)
-            hash = imagehash.crop_resistant_hash(image=im.transpose(Image.FLIP_LEFT_RIGHT),min_segment_size=10, segmentation_image_size=600)
+            hash = imagehash.crop_resistant_hash(image=im.transpose(Image.FLIP_LEFT_RIGHT),min_segment_size=500, segmentation_image_size=300, hash_func=imagehash.phash)
         else:
-            hash = imagehash.crop_resistant_hash(image=Image.open(img),min_segment_size=10, segmentation_image_size=600)
+            hash = imagehash.crop_resistant_hash(image=Image.open(img),min_segment_size=500, segmentation_image_size=300, hash_func=imagehash.phash)
 
     except Exception as e:
         print('Problem:', e, 'with', img)

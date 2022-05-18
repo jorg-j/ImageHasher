@@ -247,9 +247,10 @@ class Db:
                     query = f"""
                     SELECT filename, cropresistant
                     FROM hashes
-                    WHERE cropresistant LIKE '%{chunk}%'
+                    WHERE cropresistant LIKE '%{chunk}%';
                     AND cropresistant != '{row}';
                     """
+
                     data = cursor.execute(query).fetchall()
                     if len(data) > 0:
                         source_file = self.get_file_by_hash(row)
@@ -262,11 +263,13 @@ class Db:
                             row,
                             str(len(Counter(chunk).keys())),
                         )
-                        filepack = (data[0][0], source_file)
-                        if filepack not in filecheck:
-                            filecheck.append(filepack)
-                            filecheck.append((source_file, data[0][0]))
-                            storage.append(temp)
+
+                        if data[0][0] != source_file:
+                            filepack = (data[0][0], source_file)
+                            if filepack not in filecheck:
+                                filecheck.append(filepack)
+                                filecheck.append((source_file, data[0][0]))
+                                storage.append(temp)
 
         # Given there are items found, write csv
         if len(storage) > 0:
