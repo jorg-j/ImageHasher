@@ -45,9 +45,11 @@ def cropres(img, flip=False):
     :return: The hash is being returned.
     """
 
+    # minseg = 10, segmentation size = 600
     try:
         if flip:
             im = Image.open(img)
+            
             hash = imagehash.crop_resistant_hash(image=im.transpose(Image.FLIP_LEFT_RIGHT),min_segment_size=500, segmentation_image_size=300, hash_func=imagehash.phash)
         else:
             hash = imagehash.crop_resistant_hash(image=Image.open(img),min_segment_size=500, segmentation_image_size=300, hash_func=imagehash.phash)
