@@ -247,7 +247,7 @@ class Db:
                     query = f"""
                     SELECT filename, cropresistant
                     FROM hashes
-                    WHERE cropresistant LIKE '%{chunk}%';
+                    WHERE cropresistant LIKE '%{chunk}%'
                     AND cropresistant != '{row}';
                     """
 
